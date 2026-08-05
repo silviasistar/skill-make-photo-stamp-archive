@@ -49,3 +49,6 @@ Use $make-photo-stamp-archive to turn this photo into a direct-splice archival a
 ## License
 
 [MIT](LICENSE)
+<img width="1448" height="1086" alt="cc341eb02387a22d79055612f30cfdef" src="https://github.com/user-attachments/assets/5fd44aba-e5f1-4f24-9271-89e850f171c5" />
+<img width="1448" height="1086" alt="c8f8535fd76df3144614ad3d1d1d5526" src="https://github.com/user-attachments/assets/27fb0c46-d67f-4404-bbaf-e73e27f8202c" />
+<img width="1448" height="1086" alt="6ee175b29f2ff4ffc854eb584333de03" src="https://github.com/user-attachments/assets/9515aac2-448b-4426-ad34-70b88edc590a" />
