@@ -1,6 +1,6 @@
 # Make Photo Stamp Archive
 
-[English](README.md) · [简体中文](README.zh-CN.md) · **日本語**
+[简体中文](README.md) · [English](README.en.md) · **日本語**
 
 Make Photo Stamp Archive は、1 枚または複数の写真を静かで抑制されたアーカイブ作品へ変換する Codex Skill です。元写真を忠実に保った写真パネルと、被写体に合わせて設計した小さな手押し印を置く温白色の紙パネルを、まっすぐな境界で直接つなぎます。
 
@@ -77,7 +77,7 @@ $make-photo-stamp-archive を使って、この写真をカスタム印付きの
 ├── references/
 │   └── prompt-template.md
 ├── README.md
-├── README.zh-CN.md
+├── README.en.md
 ├── README.ja.md
 └── LICENSE
 ```
