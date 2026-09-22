@@ -1,17 +1,22 @@
 ---
 name: trade-lot-stamp
-description: Record a short timestamped archival log entry for each trading lot — an entry stamp when the position opens and an exit stamp when it closes — capturing market sentiment, underlying price and key levels, event catalyst and company news, options contract and greeks, exit price targets, stop, invalidation, and strategy, then grade process separately from outcome so the log is reviewable. Use for requests mentioning 交易日志、复盘、建仓、平仓、加仓、减仓、持仓记录、期权、期权日志、止损、目标价, trade log, trade journal, trade stamp, lot record, entry and exit log, options trade, position record, catalyst or event-driven trade, post-trade review, or amending, closing, or reviewing a previously stamped lot.
+description: Record a short timestamped archival log entry for each trading lot — an entry stamp when the position opens and an exit stamp when it closes — capturing market sentiment, underlying price and key levels, event catalyst and company news, options contract and greeks, exit price targets, stop, and strategy, then audit the closed lot across thesis, process, risk, execution, and record quality to produce a verdict, a root cause, behavior tags, and time-boxed operating rules. Use for requests mentioning 交易日志、复盘、建仓、平仓、加仓、减仓、持仓记录、期权、期权日志、止损、目标价、交易审计、流程复盘, trade log, trade journal, trade stamp, lot record, entry and exit log, options trade, position record, catalyst or event-driven trade, post-trade review, trade audit, process adherence, risk discipline, rule violation, cool down, or amending, closing, auditing, or reviewing a previously stamped lot.
 ---
 
 # Trade Lot Stamp
 
-Press one short, dated record per trading lot: an **entry stamp** at open, an **exit stamp** at close, both in the same file. Optimized for options and for later 复盘.
+Press one short, dated record per trading lot: an **entry stamp** at open, an
+**exit stamp** at close, both in the same file. Audit the lot's process when it
+closes. Optimized for options and for 复盘.
 
 Read [references/stamp-template.md](references/stamp-template.md) before writing any stamp.
+Read [references/audit-framework.md](references/audit-framework.md) before grading a closed lot (`EXIT`, `AUDIT`) or aggregating grades (`REVIEW`).
 Read [references/field-reference.md](references/field-reference.md) when a field's meaning, an options input, or a sentiment or catalyst classification is unclear.
-Read [references/review-guide.md](references/review-guide.md) only for review mode.
+Read [references/review-guide.md](references/review-guide.md) for period, strategy, or ticker review.
 
-This skill **documents** trades. It never recommends entering, exiting, sizing, or holding anything, and it never predicts a price.
+This skill **documents and audits** trades. It never recommends entering,
+exiting, sizing, or holding anything, never predicts a price, and never offers
+therapy, diagnosis, or judgement of the user.
 
 ## Modes
 
@@ -19,58 +24,121 @@ Determine the mode from the request before doing anything else.
 
 | Mode | Trigger | Action |
 | --- | --- | --- |
-| `STAMP` | a new position was opened | create a new lot file with an entry stamp |
-| `EXIT` | a position was closed or trimmed | append an exit stamp to the existing lot file |
-| `AMEND` | plan changed while the lot is open (rolled, stop moved, target changed, added) | append a dated amendment line; never rewrite history |
-| `REVIEW` | 复盘 over a period, a strategy, or a ticker | read the ledger and lot files; follow `references/review-guide.md` |
+| `STAMP` | a new position was opened | check active operating rules, then create a lot file with an entry stamp |
+| `EXIT` | a position was closed or trimmed | append an exit stamp, then audit the lot if fully closed |
+| `AMEND` | plan changed while the lot is open (rolled, stop moved, target changed, added) | append a dated amendment block; never rewrite history |
+| `AUDIT` | a closed lot needs grading or re-grading | run the audit on an existing lot file |
+| `REVIEW` | 复盘 over a period, strategy, ticker, or driver | aggregate the ledger and the audits |
+
+## Files
+
+| Path | Role |
+| --- | --- |
+| `trades/<YYYY-MM-DD>-<TICKER>-<strategy>.md` | one lot: entry stamp, amendments, exit stamps, audit |
+| `trades/_ledger.csv` | one row per lot, for aggregation |
+| `trades/_risk-plan.yaml` | account-level limits, written once by the user |
+| `trades/_operating-rules.md` | append-only, dated, time-boxed rules produced by audits |
 
 ## Workflow
 
-1. **Resolve the mode** and, for `EXIT`/`AMEND`/`REVIEW`, locate the existing lot file under `trades/` by ticker and open status. If more than one open lot matches, list them and ask which.
-2. **Fix the timestamp honestly.** Every stamp carries a decision time with a timezone (use ET for US markets) and a recording tag:
+1. **Resolve the mode.** For `EXIT`/`AMEND`/`AUDIT`, locate the lot file under
+   `trades/` by ticker and status. If more than one open lot matches, list them
+   and ask which.
+2. **Fix the timestamp honestly.** Every stamp carries a decision time with a
+   timezone (use ET for US markets) and a recording tag:
    - `live` — written at or near the decision;
    - `same-day` — written later the same session;
    - `reconstructed` — written after the fact from memory or a broker statement.
-   Mark `reconstructed` whenever the thesis is being written after the outcome is known. A reconstructed thesis is hindsight-contaminated and must be labeled so review does not trust it as a real-time prediction.
-3. **Collect the facts.** Take whatever the user supplies — a broker fill, a screenshot, a sentence. Then fill gaps in this order:
+   Mark `reconstructed` whenever the thesis is being written after the outcome
+   is known. A reconstructed thesis is hindsight-contaminated; the audit caps
+   its Thesis and Record grades and treats it as evidence, not as a prediction.
+3. **Collect the facts.** Take whatever the user supplies — a fill, a
+   screenshot, a sentence. Then fill gaps in this order:
    - derive what is derivable (cost basis, breakeven, DTE, max loss, R, percentages);
-   - look up what is checkable and cite it (underlying price, VIX, IV rank, earnings date, a news headline with its source and date);
-   - ask, in **one** batched question, only for what is neither derivable nor checkable — typically thesis, targets, stop, conviction, and position size.
-   Never invent a number, a headline, a greek, or a price level. Leave a field as `—` rather than guess, and say which fields are blank.
-4. **Keep it short.** The entry stamp is one screen. Thesis is one or two sentences and must be falsifiable. Every table row is a fact or a number, not prose.
-5. **Write the file** at `trades/<YYYY-MM-DD>-<TICKER>-<strategy-slug>.md`, appending `-2`, `-3` for repeat same-day lots on the same ticker. Assign the lot ID `<TICKER>-<YYYYMMDD>-<n>`.
-6. **Update the ledger** at `trades/_ledger.csv`, creating it with the header from `references/field-reference.md` if absent. One row per lot; the `EXIT` mode fills in the close columns of that same row. Partial exits add a child row with the parent lot ID.
-7. **Report** the saved path, the lot ID, and any field left blank.
+   - look up what is checkable and cite it (underlying price, VIX, IV rank, earnings date, a headline with source and date);
+   - ask, in **one** batched question, only for what is neither derivable nor checkable — typically thesis, targets, stop, conviction, and size.
+   Never invent a number, a headline, a greek, or a price level. Leave a field
+   as `—` rather than guess, and say which fields are blank.
+4. **Keep it short.** The entry stamp is one screen. Thesis is one or two
+   sentences and must be falsifiable. Every table row is a fact or a number.
+5. **Write or append**, then **update the ledger** at `trades/_ledger.csv`,
+   creating it with the header from `references/field-reference.md` if absent.
+6. **Report** the saved path, the lot ID, the verdict when one was produced, and
+   every field left blank.
 
 ## Rules
 
-### Entry stamp
+### Entry stamp (`STAMP`)
 
-- Record the **underlying** price at entry, not only the option price. Both are needed for 复盘.
-- Classify the trade as `[EVENT-DRIVEN]` or `[SETUP-DRIVEN]` in the catalyst line. If event-driven, name the event, its date, and a source; if the date is scheduled and known (earnings, FDA, CPI, an investor day), record it — it drives the time stop.
-- The plan table is mandatory and must state, at minimum: target 1, stop, and invalidation. A lot stamped without a stop is stamped with `Stop | — (NONE SET)` and flagged in the report, not silently left blank.
-- Express risk in **R**: R is the planned max loss on the lot. Record max loss in both currency and percent of book, so outcomes are comparable across sizes.
-- For options, always record contract, expiry, strike, right, quantity, net debit or credit, DTE, IV and IV rank, and delta. Record breakeven at the underlying. For multi-leg positions, list each leg, then the net.
+- Read `trades/_operating-rules.md` first. If an active rule appears to cover
+  this lot — a risk cap, a required record, a cool-down — say so in the report
+  **before** writing the stamp, quote the rule and its expiry, and note whether
+  the lot as described breaches it. Never block, never nag, never repeat it
+  twice. Rules that are written but not read at entry time change nothing.
+- Record the **underlying** price at entry, not only the option price. Both are
+  needed for 复盘.
+- Record the **risk gate** in one line: portfolio heat at entry against the limit
+  in `_risk-plan.yaml`, whether the setup was confirmed, and the regime gate
+  (`allowed` / `restrictive` / `cash-only`). These three are what make the audit
+  able to separate a rule breach from bad luck; without them Risk and Process
+  grade as `—`.
+- Classify the trade `[EVENT-DRIVEN]` or `[SETUP-DRIVEN]`. If event-driven, name
+  the event, its date, whether the date is scheduled, and a source with its date.
+- The plan table is mandatory: target 1, stop, and invalidation at minimum. A lot
+  without a stop is stamped `Stop | — (NONE SET)` and flagged in the report.
+- Express risk in **R** — R is the planned max loss on the lot. Record max loss in
+  currency and in percent of book so outcomes compare across sizes.
+- For options record contract, expiry, strike, right, quantity, net debit or
+  credit, DTE, IV and IV rank, delta, and breakeven at the underlying. Multi-leg
+  positions list each leg, then the net.
 
-### Exit stamp
+### Exit stamp (`EXIT`)
 
-- Record actual fills, not intended ones. Partial exits get their own dated exit block; the lot stays `OPEN` until the last contract is closed.
-- Compute P&L in currency, percent, and **R multiple**. R multiple is the honest unit — a +$400 win on a 2R risk is worse than a +$300 win on a 0.5R risk.
-- State the exit reason using one tag from the field reference (`target`, `stop`, `time-stop`, `invalidation`, `discretionary`, `assignment`, `expiry`) plus one clause of detail.
+- Record actual fills, not intended ones. Partial exits get their own dated
+  block; the lot stays `OPEN` until the last contract is closed.
+- Compute P&L in currency, percent, and **R multiple**. R multiple is the honest
+  unit — +$400 on 2R risk is worse than +$300 on 0.5R.
+- Note when a stop gapped through: realized risk then exceeded 1R, which is a
+  Risk finding about the structure, not about discipline.
+- Tag the exit reason (`target`, `stop`, `time-stop`, `invalidation`,
+  `discretionary`, `assignment`, `expiry`) plus one clause of detail.
+- On full close, run the audit.
 
-### 复盘 review block
+### Audit (`EXIT` on full close, or `AUDIT`)
 
-- Grade **process** and **outcome** on separate lines, always. A winning trade taken off-plan is a process failure, and a losing trade taken on-plan is a process success. Never let the P&L set the process grade.
-- Process grade answers only: was the plan followed, was the size right, was the stop honored, was the thesis actually tested?
-- Close with exactly one transferable rule for next time, in one line. Not three.
-- Keep the review factual. Write what happened and what deviated, not encouragement.
+Follow `references/audit-framework.md`. In short:
+
+- Grade **Record first**, then Thesis, Process, Risk, Execution, A–F. An axis with
+  no evidence is `—`. Below `C` on Record, say the audit is evidence-limited and
+  hold every behavior tag to `low` confidence.
+- Assign one primary root cause. **`randomness` is a legitimate verdict** — when
+  the plan was followed and the setup was valid, do not manufacture a lesson.
+- Assign a verdict: `OK`, `WARN`, `REVIEW_REQUIRED`, `RULE_VIOLATION`, `COOL_DOWN`.
+- Tag behavior only with cited evidence, a confidence, and one reflection
+  question. Check the options tags — `iv_blindness`, `theta_denial`,
+  `catalyst_drift`, `gamma_week_hold`, `roll_to_avoid_loss`,
+  `assignment_surprise`, `spread_leg_out` — on every options lot.
+- Propose at most three time-boxed operating rules, append accepted ones to
+  `trades/_operating-rules.md`, and end with the decision gate
+  (`accept / modify / defer / log-only`, default `log-only`). Rules are proposed,
+  never imposed.
+- The P&L never touches an axis grade. A winning lot taken off-plan grades as a
+  process failure; a losing lot taken on-plan grades as a process success.
 
 ## Guardrails
 
 - Never fabricate market data, news, greeks, or fills. Unknown is `—`.
-- Never rewrite or delete a previous stamp. Corrections are appended, dated, and labeled `AMEND`.
-- Never turn a `reconstructed` stamp into a `live` one.
+- Never rewrite or delete a stamp, an amendment, or an audit. Corrections are
+  appended, dated, and labeled.
+- Never backdate an `AMEND` reason, and never turn a `reconstructed` stamp into
+  a `live` one.
 - Never infer a thesis the user did not state; ask for it.
-- Never let the review section grow past a screen, and never pad it with generic trading advice.
-- Never emit a recommendation, a price forecast, or a "you should have" judgement.
-- Match the user's language. If they write Chinese, write the prose and the review in Chinese and keep the field labels and tags as they appear in the template.
+- Never raise a behavior tag without cited evidence, and never assert a pattern
+  from a single lot.
+- Never infer personality, mental state, or intent. Tags are `possible pattern`.
+- Never let the P&L set a process grade, in either direction.
+- Never let an audit run past a screen, and never pad it with generic advice.
+- Never emit a recommendation, a price forecast, a "you should have", or any
+  moralizing about a loss or a broken rule. Objective rule language only.
+- Match the user's language. Keep field labels, tags, verdicts, and root-cause
+  names in English as written in the references so the ledger stays sortable.

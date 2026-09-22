@@ -84,25 +84,39 @@ source did not make, and never record a rumor as a fact — tag it `unconfirmed`
 sentence in **Plan vs actual** explaining what was seen that the plan did not
 anticipate. Most process leaks show up here.
 
-## Process grades
+## Axis grades
+
+The same A–F scale grades each of the five audit axes in
+`audit-framework.md`. Grade the decisions that were controllable; the P&L is
+recorded separately and never feeds a grade.
 
 | Grade | Meaning |
 | --- | --- |
-| A | entry, size, stop, and exit all matched the written plan |
-| B | one deviation, and it was reasoned and recorded |
+| A | fully consistent with the written plan and the risk plan |
+| B | one deviation, and it was reasoned and recorded at the time |
 | C | one material deviation, unreasoned — or a plan too vague to deviate from |
-| D | stop moved against the position, or size exceeded the written risk |
-| F | no plan, no stop, or risk taken far beyond the stated limit |
+| D | a limit was exceeded, or a stop was moved against the position |
+| F | no plan, no stop, or risk far beyond the stated limit |
+| — | no evidence in the record; not a guess, not a zero |
 
-Grade the decisions that were controllable. The outcome is graded separately and
-never feeds into this column.
+Read per axis: `D` on Risk means a risk limit was breached; `D` on Execution
+means the fills broke the plan; `D` on Record means the lot is barely
+auditable. A `—` on Record is impossible — an empty record grades `F`.
+
+## Verdicts and root causes
+
+Defined in `audit-framework.md`. Ledger values, verbatim:
+
+- `verdict` — `OK`, `WARN`, `REVIEW_REQUIRED`, `RULE_VIOLATION`, `COOL_DOWN`
+- `root_cause` — `thesis_quality`, `execution`, `risk_sizing`,
+  `market_environment`, `rule_violation`, `randomness`, `unknown`
 
 ## Ledger
 
 `trades/_ledger.csv`, one row per lot, header exactly:
 
 ```csv
-lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,hold_days,process_grade,outcome
+lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,grade_execution,findings,tags,outcome
 ```
 
 - `parent_lot_id` is empty on the parent row and carries the parent's lot ID on
@@ -112,4 +126,30 @@ lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,
 - `recorded` is `live`, `same-day`, or `reconstructed`.
 - Timestamps are `YYYY-MM-DD HH:MM TZ`. Money is plain numbers, no symbols or
   thousands separators. Unknown is empty, never `0`.
+- `heat_r` is total open risk across all lots at the moment of entry, this lot
+  included; `regime_gate` is `allowed`, `restrictive`, or `cash-only`.
+- `realized_risk_r` is what the lot actually risked, which exceeds `risk_r` when
+  a stop gapped through. `size_creep` compares these two, not `risk_r` alone.
+- `findings` and `tags` are space-separated lists of finding topics and behavior
+  tags from `audit-framework.md`, each empty when none fired. Both use the
+  controlled vocabularies so a review can count them across lots.
+- Grade columns hold a single letter or `-` for an ungraded axis.
 - Quote any field containing a comma.
+
+## Risk gate fields
+
+Recorded on the entry stamp in one line. These three are what let the audit tell
+a rule breach apart from bad luck; without them Risk and Process grade as `—`.
+
+- **Portfolio heat** — total open risk in R across every open lot, counting this
+  one, at the moment of entry. Compare against `max_portfolio_heat_r`. This is
+  the field that catches the third correlated position that looked fine alone.
+- **Setup confirmed** — `✓` if the entry conditions written in the strategy were
+  met before the fill, `✗` if the entry front-ran them, `—` if the strategy has
+  no confirmation step. `✗` is the primary evidence for `fomo_entry`.
+- **Regime gate** — `allowed`, `restrictive`, or `cash-only`, resolved from the
+  regime tone against `regime_gate` in `_risk-plan.yaml`. Opening at
+  `cash-only`, or at full size under `restrictive`, is a `critical` finding.
+
+Record these at entry, not at exit. Reconstructed heat is a guess, and a guessed
+gate makes every Risk grade downstream of it meaningless.

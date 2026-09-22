@@ -1,6 +1,7 @@
 # Stamp Templates
 
-One file per lot. The entry stamp is written once; exit and amendment blocks are appended below it, newest last.
+One file per lot. The entry stamp is written once; amendment, exit, and audit
+blocks are appended below it, newest last. Nothing above is ever edited.
 
 ---
 
@@ -21,11 +22,12 @@ One file per lot. The entry stamp is written once; exit and amendment blocks are
 | Underlying | $174.30 |
 | Greeks | Δ 0.42 · DTE 25 · IV 48% (IVR 61) |
 | Breakeven | $184.20 underlying at expiry |
+| Risk gate | heat 3.1R / 4.0R · setup confirmed ✓ · regime `allowed` |
 
 ## Context
 
 - **Regime** risk-on · SPY above 20d · VIX 14.2 · semis leading
-- **Catalyst** [EVENT-DRIVEN] Q3 earnings 2026-11-19 after close — company IR calendar, 2026-09-15
+- **Catalyst** [EVENT-DRIVEN] Q3 earnings 2026-11-19 after close, scheduled — company IR calendar, 2026-09-15
 - **Levels** support $168 (20d MA) · resistance $182 (Aug 14 high)
 
 ## Thesis
@@ -62,17 +64,47 @@ Appended at close:
 | P&L | +$1,300 · +61.9% · +1.24R |
 | Hold | 8 days (17 DTE remaining) |
 | Underlying | $182.10 |
-| Reason | `target` — T1 hit at $6.30, took the rest into strength at $6.80 |
+| Reason | `discretionary` — T1 hit at $6.30, closed the full lot at $6.80 instead of trimming 3 of 5 |
+
+## Audit
+
+**Verdict** `WARN` · **Root cause** `execution` · **Outcome** win · +1.24R
+
+| Axis | | Evidence |
+| --- | --- | --- |
+| Record | A | all planned and actual fields present |
+| Thesis | A | falsifiable, invalidation named, recorded `live` before entry |
+| Process | B | entry, size, stop, and regime gate all on plan |
+| Risk | A | 1.4% of book, heat 3.1R inside the 4.0R limit |
+| Execution | C | exited the full lot at T1; the written plan held 2 of 5 for T2 |
+
+**Findings**
+
+- `warning` `exit_vs_plan` — plan held 2 contracts for T2 at $8.40; all 5 were
+  closed at $6.80. Evidence: Plan table vs exit block.
+
+**Possible patterns**
+
+- `premature_exit` (medium) — full close at T1 with no invalidation noted and no
+  `AMEND` changing the plan. Reflection: what written rule did closing the
+  runner satisfy?
+
+**Operating rules proposed**
+
+- Next 3 lots: once T1 fills, the runner comes off only at T2, the stop, or the
+  time stop. — trigger `premature_exit` · expires 2026-10-31
+
+`accept / modify / defer / log-only` (default: log-only)
 
 ## 复盘
 
-- **Plan vs actual** T1 hit as planned, but exited the full lot at T1 instead of trimming 3 of 5. Left the T2 runner on the table.
-- **Process** B — entry, size, and stop were on plan; the exit was not the exit I wrote down.
-- **Outcome** win · +1.24R
-- **Worked** waiting for the 20d reclaim before entering instead of chasing the first green day.
-- **To fix** sold the runner out of discomfort with an unrealized gain, not on any written signal.
-- **Rule** when T1 hits, the runner comes off only on T2, the stop, or the time stop — nothing else.
+- **Worked** waited for the 20d reclaim instead of chasing the first green day.
+- **To fix** sold the runner on discomfort with an unrealized gain, not a signal.
+- **Rule** T1 filling is not a reason to close the runner.
 ```
+
+Note the grade: a **+1.24R winner** graded `C` on Execution and picked up a
+behavior tag. That is the framework working as intended.
 
 ---
 
@@ -93,11 +125,12 @@ Appended at close:
 | Underlying | [$price at entry] |
 | Greeks | [Δ] · DTE [n] · IV [%] (IVR [n]) |
 | Breakeven | [$underlying at expiry] |
+| Risk gate | heat [n]R / [limit]R · setup confirmed [✓ \| ✗ \| —] · regime `[allowed\|restrictive\|cash-only]` |
 
 ## Context
 
 - **Regime** [risk-on / risk-off / chop] · [index vs key MA] · VIX [n] · [sector tone]
-- **Catalyst** [[EVENT-DRIVEN] event + date + source] or [[SETUP-DRIVEN] setup name]
+- **Catalyst** [[EVENT-DRIVEN] event + date + scheduled? + source] or [[SETUP-DRIVEN] setup name]
 - **Levels** support [$] ([why]) · resistance [$] ([why])
 
 ## Thesis
@@ -146,24 +179,59 @@ Multi-leg positions replace the `Instrument` row with a leg table, then a net li
 | Hold | [n days] ([n DTE remaining] or `expired`) |
 | Underlying | [$price at exit] |
 | Reason | `[target\|stop\|time-stop\|invalidation\|discretionary\|assignment\|expiry]` — [one clause] |
+```
+
+Partial exits append their own block and leave `Status` as `OPEN`. Only the final
+exit flips the header to `**Status** CLOSED` and triggers the audit, which covers
+the lot as a whole.
+
+---
+
+## 4. Audit — blank
+
+Follow `audit-framework.md`. Omit any section with nothing in it; a clean lot's
+audit is four lines, not this whole form.
+
+```markdown
+## Audit
+
+**Verdict** `[OK\|WARN\|REVIEW_REQUIRED\|RULE_VIOLATION\|COOL_DOWN]` · **Root cause** `[cause]`[ (secondary: `[cause]`)] · **Outcome** [win\|loss\|scratch] · [±n.nnR]
+
+| Axis | | Evidence |
+| --- | --- | --- |
+| Record | [A–F or —] | [what was present or missing] |
+| Thesis | [A–F or —] | [evidence] |
+| Process | [A–F or —] | [evidence] |
+| Risk | [A–F or —] | [evidence] |
+| Execution | [A–F or —] | [evidence] |
+
+**Findings**
+
+- `[info\|warning\|critical]` `[topic]` — [statement]. Evidence: [field comparison, quoted note, missing record, or AMEND date].
+
+**Possible patterns**
+
+- `[tag]` ([low\|medium\|high]) — [evidence]. Reflection: [one question]
+
+**Operating rules proposed**
+
+- [observable, time-boxed rule] — trigger `[tag or finding]` · expires [YYYY-MM-DD]
+
+`accept / modify / defer / log-only` (default: log-only)
 
 ## 复盘
 
-- **Plan vs actual** [where execution matched the written plan and where it did not]
-- **Process** [A–F] — [plan followed? size right? stop honored? thesis actually tested?]
-- **Outcome** [win / loss / scratch] · [±n.nnR]
 - **Worked** [one line]
 - **To fix** [one line]
 - **Rule** [one transferable line]
 ```
 
-Partial exits append their own block and leave `Status` as `OPEN`. Only the final
-exit flips the header to `**Status** CLOSED` and writes the 复盘 section, which
-covers the lot as a whole.
+A `COOL_DOWN` verdict is stated on the first line of the audit and appended to
+`trades/_operating-rules.md` the same day.
 
 ---
 
-## 4. Amendment — blank
+## 5. Amendment — blank
 
 ```markdown
 ---
@@ -177,3 +245,47 @@ covers the lot as a whole.
 Use for rolls, added or reduced size, moved stops, and revised targets. Never
 edit the original stamp; the gap between the first plan and the amendments is
 itself the review material.
+
+A **roll** always states whether the thesis is unchanged, revised, or gone. A roll
+with no new thesis after the stop level is what `roll_to_avoid_loss` looks for,
+and it can only be distinguished from a legitimate roll by what is written here
+at the time.
+
+---
+
+## 6. `trades/_risk-plan.yaml` — written once
+
+Account-level limits. The audit grades Risk against these; without the file,
+Risk grades as `—` and no `RULE_VIOLATION` can be asserted.
+
+```yaml
+max_risk_per_trade_r: 1.0      # max 1R size on any single lot
+max_portfolio_heat_r: 4.0      # max summed open risk across all lots
+max_weekly_loss_r: 3.0         # realized weekly loss that triggers cool-down
+max_consecutive_losses: 4      # count that triggers cool-down
+regime_gate:                   # which regimes permit new risk
+  allowed: [risk-on]
+  restrictive: [chop]          # reduced size only
+  cash_only: [risk-off]
+require_setup_confirmation: true
+require_stop_before_entry: true
+```
+
+## 7. `trades/_operating-rules.md` — append-only
+
+```markdown
+# Operating Rules
+
+## Active
+
+- [ ] [rule] — trigger `[tag]` · from [lot ID] · set [YYYY-MM-DD] · expires [YYYY-MM-DD]
+
+## Expired
+
+- [x] [rule] — set [YYYY-MM-DD] · expired [YYYY-MM-DD] · [held | broken at lot ID]
+```
+
+At most three active rules. `STAMP` reads this file before writing a new entry
+stamp and flags any active rule the new lot appears to breach. Move a rule to
+`Expired` on its date and record whether it held — a rule written three times and
+broken three times is the finding.
