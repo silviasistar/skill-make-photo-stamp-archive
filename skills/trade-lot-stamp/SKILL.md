@@ -57,11 +57,18 @@ Determine the mode from the request before doing anything else.
      against. Do not write a bare exit with no entry.
    - no ticker given ("closed it at 7") → ask. A fresh session has no antecedent
      for "it".
-2. **Fix the timestamp honestly.** Every stamp carries a decision time with a
-   timezone (use ET for US markets) and a recording tag:
-   - `live` — written at or near the decision;
-   - `same-day` — written later the same session;
-   - `reconstructed` — written after the fact from memory or a broker statement.
+2. **Fix the timestamps honestly — there are two of them.** Every stamp carries
+   a **fill time** and a **record time**, both in ET for US markets. Convert the
+   trader's local clock to ET first; a 23:19 reading is 11:19 ET from Beijing and
+   23:19 ET from New York, and the tag differs.
+   The recording tag is set by the **gap between them**, never by the fill time
+   alone:
+   - `live` — recorded within about an hour of the fill, in the same session;
+   - `same-day` — same ET trading day, but beyond that window;
+   - `reconstructed` — a later ET day, from memory or a broker statement.
+   The tag describes when the *record* was made. A thesis typed after the close
+   has seen the whole session and is not a real-time prediction, however
+   carefully it is written.
    Mark `reconstructed` whenever the thesis is being written after the outcome
    is known. A reconstructed thesis is hindsight-contaminated; the audit caps
    its Thesis and Record grades and treats it as evidence, not as a prediction.

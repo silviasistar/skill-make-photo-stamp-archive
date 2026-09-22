@@ -21,6 +21,7 @@ any field that is neither supplied, derivable, nor checkable as `—`.
 | R multiple | realized P&L ÷ 1R |
 | % of book | lot risk ÷ total account value |
 | Hold | exit date − entry date, in calendar days |
+| Recording gap | record time − fill time, both in ET; sets the recording tag |
 | Credit-structure P&L % | realized P&L ÷ credit received (percent of max profit captured) |
 | Debit-structure P&L % | realized P&L ÷ net debit paid |
 
