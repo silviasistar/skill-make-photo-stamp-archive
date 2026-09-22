@@ -178,6 +178,7 @@ moralize. A tag with thin evidence is `low`, or is omitted.
 | `overconfidence_after_winner` | risk above plan following a winner | Did the prior win change your size or your quality threshold? |
 | `stop_moved` | `AMEND` moved the stop against the position, unplanned | Was the new stop part of the plan before entry? |
 | `size_creep` | realized risk > written 1R, explicitly compared | What would this have looked like at the planned size? |
+| `breakeven_exit_only` | the only exit order placed sits at or above the entry price, with no stop below it | What price were you willing to sell at if it did not come back? |
 | `hesitation` | planned entry missed, then entered late or not at all | What would have made the trigger automatic? |
 | `exposure_stacking` | a second same-direction lot opened minutes to hours after the first, while the first is under water and with no written plan covering the addition | Was the second position planned before the first went against you, or decided while it was moving? |
 | `rule_drift` | three or more minor deviations across recent lots | Which single rule is worth enforcing next week? |
@@ -198,6 +199,22 @@ These are the ones an equity-shaped review misses. Most options damage is here.
 | `roll_to_avoid_loss` | `AMEND` rolled out or down with no new thesis, after the stop level | Is this a new position, or the old one not taken off? |
 | `assignment_surprise` | `assignment` exit with no assignment plan in the stamp | Was assignment an accepted outcome or an accident? |
 | `spread_leg_out` | one leg closed discretionarily, breaking the structure | What did legging out do to the position's max loss? |
+
+`breakeven_exit_only` describes an order, not a feeling, and the order is on the
+record: an exit at the entry price is neither a target nor a stop. It can fill
+only if the position is made whole, so the outcomes it permits are scratch, or
+maximum loss, with nothing in between. Read it alongside the entry: a position
+that had no stop when it was opened has not acquired one by having a
+breakeven limit placed on it later.
+
+On a 0–2 DTE contract the tag carries more weight. Theta means the underlying has
+to move further with every hour just to hold the option's price flat, so a
+breakeven limit becomes progressively harder to reach as the session runs. On
+those lots the order is close to no exit at all, and the position is effectively
+unmanaged from the moment it is placed.
+
+Size decides the damage, not the pattern. The same order on a larger position
+converts the same adverse move into the same total loss.
 
 `exposure_stacking` is not the same as a planned scale-in. Adding into weakness
 on a schedule written before entry is a strategy; adding because the first lot is
