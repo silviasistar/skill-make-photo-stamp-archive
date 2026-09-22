@@ -61,22 +61,23 @@ Determine the mode from the request before doing anything else.
    a **fill time** and a **record time**, both in ET for US markets. Convert the
    trader's local clock to ET first; a 23:19 reading is 11:19 ET from Beijing and
    23:19 ET from New York, and the tag differs.
-   The recording tag is set by the **gap between them measured against the
-   position's remaining life**, never by the fill time alone and never by a fixed
-   number of hours:
-   - `live` — the gap is a negligible share of the position's life, and the
-     record predates anything being knowable about the outcome;
-   - `same-day` — same ET trading day, but a material share of the life has
-     passed, or the session has closed;
-   - `reconstructed` — a later ET day, from memory or a broker statement.
-   An hour and a half is 0.3% of a 24-day position and 30% of a 0 DTE one. The
-   same clock gap is negligible on the first and disqualifying on the second.
-   The tag describes when the *record* was made. A thesis typed after the close
-   has seen the whole session and is not a real-time prediction, however
-   carefully it is written.
-   Mark `reconstructed` whenever the thesis is being written after the outcome
-   is known. A reconstructed thesis is hindsight-contaminated; the audit caps
-   its Thesis and Record grades and treats it as evidence, not as a prediction.
+   The recording tag is set by the **gap between them**, with one cap:
+   - `live` — recorded **within 24 hours of the fill**, and while the position
+     was still unresolved;
+   - `delayed` — more than 24 hours after the fill, but still written before the
+     outcome was known;
+   - `reconstructed` — written after the outcome was known, or from a broker
+     statement.
+   The 24-hour window is deliberately generous: a trader cannot stop and write
+   during the session, and a tag nobody can earn tells a review nothing.
+   **The cap is what the tag exists for.** A record made after the position
+   resolved is never `live`, however few hours have passed — a 0 DTE contract
+   written up six hours later is written up after it expired, and calling that
+   `live` would let the tag certify exactly the records it was built to catch.
+   Both timestamps go on the stamp in ET so the tag can be re-derived; it is
+   derived, not asserted, and a correction to a timezone or either timestamp
+   changes it.
+
 3. **Collect the facts.** Take whatever the user supplies — a fill, a
    screenshot, a sentence. Then fill gaps in this order:
    - derive what is derivable (cost basis, breakeven, DTE, max loss, R, percentages);

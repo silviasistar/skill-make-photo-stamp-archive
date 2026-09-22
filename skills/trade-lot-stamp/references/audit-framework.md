@@ -105,28 +105,34 @@ learns that past sizing sat outside what they now consider acceptable.
 
 ## The recording gap
 
-`live`, `same-day` and `reconstructed` describe **when the record was made**, not
+`live`, `delayed` and `reconstructed` describe **when the record was made**, not
 when the trade was. Setting the tag needs two timestamps, both converted to ET
 before anything is compared — the trader's local clock is not the market's, and
 the same 23:19 reading is 11:19 ET from Beijing and 23:19 ET from New York, which
 is the difference between mid-session and four hours after the close.
 
-Judge the gap **as a share of the position's remaining life**, not in absolute
-hours:
+| Tag | Condition |
+| --- | --- |
+| `live` | within 24h of the fill **and** the position had not resolved |
+| `delayed` | more than 24h after the fill, but before the outcome was known |
+| `reconstructed` | after the outcome was known, or from a broker statement |
 
-| Position | Gap | Share of life | Reads as |
-| --- | --- | --- | --- |
-| 24 DTE | 1h 40m | 0.29% | negligible — `live` |
-| 0 DTE, 5h 38m left | 1h 40m | 30% | disqualifying |
+The window is 24 hours by design. Nobody stops mid-session to write a thesis, and
+a threshold tight enough that the tag is never earned measures the trader's
+schedule rather than the honesty of the record.
 
-A flat hour threshold gets both of these wrong in opposite directions. What the
-tag is protecting is a simple question: **could the outcome have been known when
-this was written?** On a 24-day position an hour of intraday noise answers no; on
-an expiring contract it answers yes.
+**The resolution cap is the part that does the work.** The tag exists to answer
+one question — *could the outcome have been known when this was written?* — and
+elapsed hours answer it only relative to the contract. Six hours is comfortably
+inside 24, and on a 0 DTE contract it is after expiry. A record written then is
+`reconstructed` no matter what the clock says. The cap binds hardest on exactly
+the short-dated trades where hindsight contaminates a thesis fastest.
 
-Record both times on the stamp so the judgement can be re-checked, and re-check
-it whenever the timezone or either timestamp is corrected — the tag is derived,
-not asserted, and a correction to an input changes it.
+A `reconstructed` stamp caps the Thesis and Record grades. `delayed` does not cap
+them, but the audit notes the gap, because a day of price action was available.
+
+The tag is derived, not asserted. Re-derive it whenever a timezone or either
+timestamp is corrected.
 
 ## Corrections to recorded facts
 

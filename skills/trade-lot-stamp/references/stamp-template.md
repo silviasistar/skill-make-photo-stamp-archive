@@ -113,7 +113,7 @@ behavior tag. That is the framework working as intended.
 ```markdown
 # [TICKER] · [Strategy] · [YYYY-MM-DD]
 
-**Lot** [TICKER-YYYYMMDD-n] · **Status** OPEN · **Recorded** [live | same-day | reconstructed] · fill [YYYY-MM-DD HH:MM ET] · recorded [YYYY-MM-DD HH:MM ET]
+**Lot** [TICKER-YYYYMMDD-n] · **Status** OPEN · **Recorded** [live | delayed | reconstructed] · fill [YYYY-MM-DD HH:MM ET] · recorded [YYYY-MM-DD HH:MM ET]
 
 ## Position
 

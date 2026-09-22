@@ -146,7 +146,7 @@ lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,
   a partial-exit child row.
 - `driver` is `event` or `setup`; `catalyst` is a short slug (`q3-earnings`,
   `20d-breakout`).
-- `recorded` is `live`, `same-day`, or `reconstructed`.
+- `recorded` is `live`, `delayed`, or `reconstructed`.
 - Timestamps are `YYYY-MM-DD HH:MM TZ`. Money is plain numbers, no symbols or
   thousands separators. Unknown is empty, never `0`.
 - `heat_r` is total open risk across all lots at the moment of entry, this lot
