@@ -156,6 +156,7 @@ moralize. A tag with thin evidence is `low`, or is omitted.
 | `stop_moved` | `AMEND` moved the stop against the position, unplanned | Was the new stop part of the plan before entry? |
 | `size_creep` | realized risk > written 1R, explicitly compared | What would this have looked like at the planned size? |
 | `hesitation` | planned entry missed, then entered late or not at all | What would have made the trigger automatic? |
+| `exposure_stacking` | a second same-direction lot opened minutes to hours after the first, while the first is under water and with no written plan covering the addition | Was the second position planned before the first went against you, or decided while it was moving? |
 | `rule_drift` | three or more minor deviations across recent lots | Which single rule is worth enforcing next week? |
 | `unknown_size_discipline` | 1R or realized risk missing | Record both next lot so this becomes checkable. |
 | `hindsight_inflation` | `reconstructed` lots grading better than `live` ones | Is the log recording decisions, or outcomes? |
@@ -170,10 +171,16 @@ These are the ones an equity-shaped review misses. Most options damage is here.
 | `iv_blindness` | long premium opened at IVR > 60, or short premium at IVR < 30 | Were you paid for the volatility you bought or sold? |
 | `theta_denial` | held past the written time stop with DTE < 21 | What was the thesis for the days after the time stop? |
 | `catalyst_drift` | event-driven lot held past its event with no new written thesis | The event happened — what is the thesis now? |
-| `gamma_week_hold` | held into expiry week without a written plan for it | What was the plan for expiry week, written when? |
+| `gamma_week_hold` | held into expiry week, **or opened at 0–2 DTE**, without a written plan for it | What was the plan for the last days, written when? |
 | `roll_to_avoid_loss` | `AMEND` rolled out or down with no new thesis, after the stop level | Is this a new position, or the old one not taken off? |
 | `assignment_surprise` | `assignment` exit with no assignment plan in the stamp | Was assignment an accepted outcome or an accident? |
 | `spread_leg_out` | one leg closed discretionarily, breaking the structure | What did legging out do to the position's max loss? |
+
+`exposure_stacking` is not the same as a planned scale-in. Adding into weakness
+on a schedule written before entry is a strategy; adding because the first lot is
+moving against you is a decision made under pressure. The fills look identical,
+and only a plan written beforehand separates them. Record the tag on evidence of
+timing and absence of plan, never on an assumption about motive.
 
 `roll_to_avoid_loss` deserves the closest reading. A roll that keeps a thesis
 alive and a roll that refuses to realize a loss look identical in the fills and
