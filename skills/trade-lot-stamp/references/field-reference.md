@@ -61,6 +61,18 @@ must note if the stop gapped through, because realized risk then exceeded 1R.
   percentile. Record IV rank whenever the strategy is long or short volatility.
   Note theta per day when DTE is under 21.
 
+## Stock lots
+
+- **Position value** — price × shares. Not the same as risk.
+- **1R** — `(entry − stop) × shares`. Without a stop there is no 1R: record the
+  position value as the theoretical maximum and say the lot has no defined risk.
+  Never silently set 1R to the position value; that makes every unstopped stock
+  lot look like a 1R trade and it is not comparable to an option lot's 1R.
+- **Average cost** — restated after every add, with the number of adds. A stock
+  lot that is added to is still one lot; the adds are `AMEND` blocks.
+- Greeks, breakeven, DTE, IV and return on risk are options fields. Omit them
+  from a stock stamp rather than filling them with `—`.
+
 ## Regime / sentiment line
 
 Record what was observable at entry, in this order. One clause each, no forecast.

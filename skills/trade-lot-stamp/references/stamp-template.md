@@ -153,6 +153,28 @@ behavior tag. That is the framework working as intended.
 - Conviction [n]/5. [Anything a reviewer would otherwise ask.]
 ```
 
+**Stock lots** replace the options rows entirely — greeks, breakeven, DTE and
+return on risk do not apply, and leaving them as `—` is noise, not evidence:
+
+```markdown
+| | |
+| --- | --- |
+| Instrument | [TICKER] ×[N] shares |
+| Entry | $[price] · [YYYY-MM-DD HH:MM ET] |
+| Position value | $[price × N] · [%] of book |
+| Stop | $[price] ([−%]) |
+| 1R | $[(entry − stop) × N] |
+| Average cost | $[price] (after [n] adds) |
+| Risk gate | heat [n]R / [limit]R · setup confirmed [✓\|✗\|—] · regime `[...]` |
+```
+
+**On a stock lot the stop is what creates 1R.** A long stock position with no
+stop has a max loss of the entire position, which is true and useless: it makes
+every stock lot 1R by definition and destroys comparison against option lots,
+where 1R is a real number. A stock lot stamped without a stop records
+`1R | — (no stop; position value $X is the theoretical maximum)` and the audit
+grades Risk on that absence rather than on the dollar figure.
+
 Multi-leg positions replace the `Instrument` row with a leg table, then a net line:
 
 ```markdown
