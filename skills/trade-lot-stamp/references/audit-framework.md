@@ -103,6 +103,29 @@ learns that past sizing sat outside what they now consider acceptable.
 - `warning` — possible issue, or evidence too thin to call.
 - `critical` — an explicit limit or written rule was breached.
 
+## Linked lots
+
+An option exercised or assigned against stock you hold does not pay out in its
+own P&L — the payoff lands in the **other lot's entry or exit price**. A long put
+exercised against 100 shares shows as the full debit lost on the option lot and a
+better exit price on the stock lot. Both numbers are right and adding them is not
+double counting, but a reviewer scanning the ledger sees a losing option and
+misses that it was the profitable half of the pair.
+
+Record the relationship with `hedge_of` (or `hedged_by`) naming the other lot ID,
+and audit such a lot **on the pair**, not standalone:
+
+- state the option lot's own P&L, which is what it cost;
+- state what the linked lot's price would have been without it, as a bounded
+  counterfactual with its reference point named (a close, an after-hours print,
+  a next-day open) — never an open-ended "could have been";
+- grade the pair on whether the protection was placed before the exposure became
+  unavoidable, not on which line shows red.
+
+A lot that is linked only in hindsight is still recorded, with the linkage marked
+`incidental`: the protection was real, the intent is unproven. The distinction
+matters because an incidental hedge cannot be relied on to repeat.
+
 ## Finding topics
 
 A finding names one topic from this list, so findings stay countable across
