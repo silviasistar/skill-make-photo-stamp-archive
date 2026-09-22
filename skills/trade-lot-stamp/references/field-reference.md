@@ -19,6 +19,15 @@ any field that is neither supplied, derivable, nor checkable as `—`.
 | R multiple | realized P&L ÷ 1R |
 | % of book | lot risk ÷ total account value |
 | Hold | exit date − entry date, in calendar days |
+| Credit-structure P&L % | realized P&L ÷ credit received (percent of max profit captured) |
+| Debit-structure P&L % | realized P&L ÷ net debit paid |
+
+A credit structure has two defensible percentages and they differ by a lot: P&L
+over credit received (percent of max profit captured) and P&L over risk. The
+ledger's `pnl_pct` always holds the first, because it is the one that is
+comparable across credit lots; the second is `r_multiple`, which is already a
+column. Closing a $17 credit spread at $7 is 58.8% of max profit and +0.12R —
+both true, and the gap between them is the point of recording each.
 
 For a long option with no stop below the premium, 1R is the full premium paid.
 If a stop is set at −50% of premium, 1R is half the premium — and the exit stamp
@@ -141,6 +150,11 @@ lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,
 Recorded on the entry stamp in one line. These three are what let the audit tell
 a rule breach apart from bad luck; without them Risk and Process grade as `—`.
 
+- **Assignment exposure** (short single-leg options only) — strike × 100 ×
+  contracts, which is what assignment obligates you to buy or sell. It is
+  unrelated to the premium and is usually much larger than any loss figure, so a
+  single-leg limit is written against this number. It is the field that explains
+  choosing a spread over a naked put on a high-priced underlying.
 - **Portfolio heat** — total open risk in R across every open lot, counting this
   one, at the moment of entry. Compare against `max_portfolio_heat_r`. This is
   the field that catches the third correlated position that looked fine alone.

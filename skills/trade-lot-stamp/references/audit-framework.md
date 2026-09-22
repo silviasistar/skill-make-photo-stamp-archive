@@ -35,8 +35,17 @@ Exactly one primary, plus optional secondaries.
 | `risk_sizing` | realized risk exceeded the written limit |
 | `market_environment` | the regime gate was ignored, or conditions invalidated the structure |
 | `rule_violation` | a stated rule was explicitly broken |
-| `randomness` | plan followed, setup valid, market simply went the other way |
+| `as_designed` | plan followed, structure behaved as intended, result matched the written thesis |
+| `randomness` | plan followed, setup valid, market simply moved — for or against |
 | `unknown` | the record cannot support a call |
+
+`as_designed` is the only non-failure cause, and it is deliberately hard to earn:
+it requires a thesis written **before** the outcome was known. A winning lot with
+no recorded thesis is `unknown`, not `as_designed` — you cannot claim the plan
+worked without having written the plan. Where the thesis is `reconstructed` but
+the structure and the outcome are independently verifiable from the fills, record
+`as_designed` and say in the evidence that the attribution rests on those, not on
+recalled intent.
 
 `randomness` is a legitimate and expected conclusion. Reach for it whenever the
 plan was followed and the setup was valid — do not manufacture a lesson from a
@@ -48,8 +57,10 @@ Prefer the cause the user supplied if they stated one. Otherwise derive:
 1. realized risk > written 1R → `risk_sizing`
 2. setup unconfirmed or stop moved unplanned → `execution`
 3. regime gate ignored → `market_environment`
-4. plan followed, setup valid, no limit breached → `randomness`
-5. none of the above → `unknown`
+4. plan followed, thesis written before the outcome, result matched it → `as_designed`
+5. plan followed, setup valid, no limit breached, but no pre-written thesis to
+   match the result against → `randomness`
+6. none of the above → `unknown`
 
 ## Verdict
 
@@ -74,6 +85,17 @@ Any one of:
 `COOL_DOWN` writes a dated entry to `trades/_operating-rules.md` and is reported
 at the top of the audit. Its value is that it is mechanical: the decision to
 stop is made by the record, at a moment when judgement is least reliable.
+
+## Back-filled lots
+
+A limit in `_risk-plan.yaml` binds only lots opened on or after its
+`effective_from` date. For an earlier lot, compare anyway and record the result
+as an `info` finding that names both numbers and states the limit was not in
+force at the time. Never grade it `D` on Risk and never call it a
+`RULE_VIOLATION`: a rule written today was not available to be followed last
+quarter, and convicting the record of it teaches nothing and makes the log feel
+like a trap. The comparison still belongs in the audit — it is how a trader
+learns that past sizing sat outside what they now consider acceptable.
 
 ## Finding severity
 

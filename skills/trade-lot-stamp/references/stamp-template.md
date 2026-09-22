@@ -163,6 +163,22 @@ Multi-leg positions replace the `Instrument` row with a leg table, then a net li
 | **Net** | [spread name, width $] | | **[$ debit/credit]** |
 ```
 
+**Credit structures** (short vertical, iron condor, cash-secured put) replace the
+`Cost / Risk` row, which assumes a debit. Money comes in, so there is no cost —
+the risk is what the structure can lose, not what it cost:
+
+```markdown
+| Entry | [$price] credit · [YYYY-MM-DD HH:MM TZ] |
+| Credit / Risk | +[$credit] received · [%] of book · 1R = [$max loss] |
+| Max profit | [$credit] — [condition at expiry] |
+| Max loss | [$width − credit, or assignment exposure] — [condition at expiry] |
+| Risk : reward | [n.n] : 1 [against \| for] |
+```
+
+For a short single-leg put also record `Assignment exposure | $[strike × 100 × n]`,
+which is what the position obligates you to buy. That number, not the premium, is
+what a single-leg limit is written against.
+
 ---
 
 ## 3. Exit stamp — blank
@@ -258,18 +274,44 @@ at the time.
 Account-level limits. The audit grades Risk against these; without the file,
 Risk grades as `—` and no `RULE_VIOLATION` can be asserted.
 
+Limits differ by instrument type, because the binding constraint differs. A
+defined-risk spread is bounded by its max loss. A short single-leg put is bounded
+by **assignment exposure** — what you are obligated to buy — which is usually far
+larger than any loss figure and is the reason a trader picks a spread over a
+naked put on a high-priced underlying.
+
 ```yaml
-max_risk_per_trade_r: 1.0      # max 1R size on any single lot
-max_portfolio_heat_r: 4.0      # max summed open risk across all lots
-max_weekly_loss_r: 3.0         # realized weekly loss that triggers cool-down
-max_consecutive_losses: 4      # count that triggers cool-down
-regime_gate:                   # which regimes permit new risk
-  allowed: [risk-on]
-  restrictive: [chop]          # reduced size only
-  cash_only: [risk-off]
-require_setup_confirmation: true
-require_stop_before_entry: true
+effective_from: 2026-09-22      # limits are NOT applied to lots opened earlier
+book_value: 650000
+currency: USD
+
+limits:
+  option_single_leg:
+    max_assignment_exposure: 10000   # strike x 100 x contracts
+  option_multi_leg:
+    max_loss: 5000                   # width - credit, or net debit; = 1R
+  stock_single_name:
+    max_loss: 5000                   # = 1R
+
+max_portfolio_heat: null        # total open risk across all lots
+max_weekly_loss: null
+max_consecutive_losses: null
+regime_gate: null
+require_setup_confirmation: null
+require_stop_before_entry: null
 ```
+
+`effective_from` is what keeps the audit honest about back-filled lots. A limit
+written today is not a rule the trader broke last quarter: for a lot opened
+before that date the audit records the comparison as an `info` observation and
+never as a `RULE_VIOLATION`.
+
+A limit left `null` is not zero and not unlimited — the audit grades the check it
+governs as `—` and says which limit is missing. Fill them in as you decide them
+rather than guessing now.
+
+`1R` is read per instrument type from this file, so an R multiple means the same
+thing across a stock lot and a spread lot.
 
 ## 7. `trades/_operating-rules.md` — append-only
 
