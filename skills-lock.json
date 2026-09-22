@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "stock-research-executor": {
+      "source": "liangdabiao/claude-code-stock-deep-research-agent",
+      "sourceType": "github",
+      "skillPath": "1.claude/skills/stock-research-executor/SKILL.md",
+      "computedHash": "0b3641a96bc48ee4566b225d846a2e2b493765fab1a4282c5ec22493c7f4bd80"
+    }
+  }
+}
