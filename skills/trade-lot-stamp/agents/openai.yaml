@@ -1,4 +1,0 @@
-interface:
-  display_name: "交易图章"
-  short_description: "Stamp a short, timestamped entry/exit log for each trading lot"
-  default_prompt: "Use $trade-lot-stamp to log this trade: entry, underlying, sentiment, catalyst, exit targets, and stop."
