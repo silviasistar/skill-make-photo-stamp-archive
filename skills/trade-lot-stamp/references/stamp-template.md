@@ -172,6 +172,7 @@ the risk is what the structure can lose, not what it cost:
 | Credit / Risk | +[$credit] received · [%] of book · 1R = [$max loss] |
 | Max profit | [$credit] — [condition at expiry] |
 | Max loss | [$width − credit, or assignment exposure] — [condition at expiry] |
+| Return on risk | [credit ÷ max loss]% · credit is [n]% of width |
 | Risk : reward | [n.n] : 1 [against \| for] |
 ```
 

@@ -15,6 +15,8 @@ any field that is neither supplied, derivable, nor checkable as `—`.
 | Credit-spread breakeven | short strike ∓ net credit (call: +, put: −) |
 | Debit-spread max profit | (width × 100 × contracts) − cost |
 | Credit-spread max loss | (width × 100 × contracts) − credit |
+| Return on risk | credit ÷ max loss — what the premium pays for the risk taken |
+| Credit as % of width | net credit ÷ width — the same number before the credit is netted out |
 | 1R | planned max loss on the lot, in currency |
 | R multiple | realized P&L ÷ 1R |
 | % of book | lot risk ÷ total account value |
@@ -28,6 +30,17 @@ ledger's `pnl_pct` always holds the first, because it is the one that is
 comparable across credit lots; the second is `r_multiple`, which is already a
 column. Closing a $17 credit spread at $7 is 58.8% of max profit and +0.12R —
 both true, and the gap between them is the point of recording each.
+
+**Return on risk is the field a credit seller actually screens on.** Absolute
+premium is not comparable across structures — $17 on a $100-wide spread and $12
+on a $50-wide are 20.5% and 31.6% return on risk. Record it on every credit lot;
+a review cannot compare credit trades without it, and its reciprocal (risk:reward
+"4.9 : 1 against") carries the same information in the direction nobody thinks in.
+
+A low return on risk is the arithmetic signature of a far-out-of-the-money strike:
+high probability of keeping the credit, little paid for taking the risk. A high one
+means the short strike sits close to the money. Neither is good or bad on its own —
+record the number and let the review find out which one the trader actually wins on.
 
 For a long option with no stop below the premium, 1R is the full premium paid.
 If a stop is set at −50% of premium, 1R is half the premium — and the exit stamp
@@ -125,7 +138,7 @@ Defined in `audit-framework.md`. Ledger values, verbatim:
 `trades/_ledger.csv`, one row per lot, header exactly:
 
 ```csv
-lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,grade_execution,findings,tags,outcome
+lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,grade_execution,credit_pct_width,return_on_risk,findings,tags,outcome
 ```
 
 - `parent_lot_id` is empty on the parent row and carries the parent's lot ID on
@@ -139,6 +152,8 @@ lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,
   included; `regime_gate` is `allowed`, `restrictive`, or `cash-only`.
 - `realized_risk_r` is what the lot actually risked, which exceeds `risk_r` when
   a stop gapped through. `size_creep` compares these two, not `risk_r` alone.
+- `credit_pct_width` and `return_on_risk` are percentages, credit lots only;
+  both empty on a debit lot.
 - `findings` and `tags` are space-separated lists of finding topics and behavior
   tags from `audit-framework.md`, each empty when none fired. Both use the
   controlled vocabularies so a review can count them across lots.
