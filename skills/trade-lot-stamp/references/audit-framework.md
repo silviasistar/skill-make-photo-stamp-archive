@@ -242,6 +242,14 @@ unmanaged from the moment it is placed.
 Size decides the damage, not the pattern. The same order on a larger position
 converts the same adverse move into the same total loss.
 
+**Check the entry price before raising this tag, and check that the entry price
+is right.** The tag turns entirely on the exit order sitting at or above the
+fill, so a wrong entry makes a profit target look like a scratch order. A $5.00
+limit is `breakeven_exit_only` against a $5.00 fill and a +137% target against a
+$2.11 one — the same order, opposite readings. Quote both numbers in the
+evidence so the comparison is visible and a later correction to either one shows
+immediately whether the tag still stands.
+
 `exposure_stacking` is not the same as a planned scale-in. Adding into weakness
 on a schedule written before entry is a strategy; adding because the first lot is
 moving against you is a decision made under pressure. The fills look identical,
