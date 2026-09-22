@@ -41,9 +41,22 @@ Determine the mode from the request before doing anything else.
 
 ## Workflow
 
-1. **Resolve the mode.** For `EXIT`/`AMEND`/`AUDIT`, locate the lot file under
-   `trades/` by ticker and status. If more than one open lot matches, list them
-   and ask which.
+1. **Resolve the mode**, then for `EXIT`/`AMEND`/`AUDIT` **find the lot**. Weeks
+   usually pass between the entry and the exit, and a later session remembers
+   nothing — the file is the only memory, so look it up rather than relying on
+   conversation:
+   - `grep -l "^# <TICKER> " trades/*.md`, then read the `**Status**` line of
+     each hit;
+   - exactly one `OPEN` match → append to it;
+   - several `OPEN` matches → list them with lot ID, entry date, and structure,
+     and ask which. Never guess, and never merge two lots into one file;
+   - only `CLOSED` matches → say so and ask. A closed lot never silently takes
+     another exit block; the user may mean a new position on the same ticker;
+   - no match at all → the entry was never stamped. Say so, and offer to write a
+     `reconstructed` entry stamp first so the lot has a plan to be audited
+     against. Do not write a bare exit with no entry.
+   - no ticker given ("closed it at 7") → ask. A fresh session has no antecedent
+     for "it".
 2. **Fix the timestamp honestly.** Every stamp carries a decision time with a
    timezone (use ET for US markets) and a recording tag:
    - `live` — written at or near the decision;
