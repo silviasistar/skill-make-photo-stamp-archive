@@ -110,9 +110,17 @@ Determine the mode from the request before doing anything else.
   grade as `—`.
 - Classify the trade `[EVENT-DRIVEN]` or `[SETUP-DRIVEN]`. If event-driven, name
   the event, its date, whether the date is scheduled, and a source with its date.
-- The plan table is mandatory: target 1, stop, and invalidation at minimum. A lot
-  without a stop is stamped `Stop | — (NONE SET)` and flagged in the report.
-- Express risk in **R** — R is the planned max loss on the lot. Record max loss in
+- **Declare the `horizon` first** — `swing`, `income`, or `allocation`. It decides
+  what the lot owes the record and how it is measured later, so it is chosen
+  before the plan table, not after. See `audit-framework.md`.
+- The plan table is mandatory, and what it must contain follows the horizon: a
+  **price stop** for `swing`, an **assignment plan** for `income`, a **written
+  non-price invalidation and a review cadence** for `allocation`. A `swing` lot
+  without a stop is stamped `Stop | — (NONE SET)` and flagged in the report; an
+  `allocation` lot without one is correct and is not flagged.
+- Express risk in **R** for `swing` and `income` lots — R is the planned max loss
+  on the lot. An `allocation` lot has no R; record position value and percent of
+  book, and never book position value as 1R. Record max loss in
   currency and in percent of book so outcomes compare across sizes.
 - For options record contract, expiry, strike, right, quantity, net debit or
   credit, DTE, IV and IV rank, delta, and breakeven at the underlying. Multi-leg

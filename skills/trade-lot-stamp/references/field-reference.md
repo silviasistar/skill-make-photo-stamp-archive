@@ -61,11 +61,20 @@ must note if the stop gapped through, because realized risk then exceeded 1R.
   percentile. Record IV rank whenever the strategy is long or short volatility.
   Note theta per day when DTE is under 21.
 
+## Horizon
+
+`swing` / `income` / `allocation`, declared at entry. Defined in
+`audit-framework.md`; it governs whether a stop is required, what stands in for
+one, and whether the lot has an R at all. Never left blank — a lot with no
+horizon cannot be graded on Risk or Process.
+
 ## Stock lots
 
 - **Position value** — price × shares. Not the same as risk.
-- **1R** — `(entry − stop) × shares`. Without a stop there is no 1R: record the
-  position value as the theoretical maximum and say the lot has no defined risk.
+- **1R** — `(entry − stop) × shares`, on a `swing` lot. An `allocation` lot has
+  no 1R by design; record position value and percent of book instead. A `swing`
+  lot with no stop records the position value as the theoretical maximum and
+  says the lot has no defined risk.
   Never silently set 1R to the position value; that makes every unstopped stock
   lot look like a 1R trade and it is not comparable to an option lot's 1R.
 - **Average cost** — restated after every add, with the number of adds. A stock
@@ -151,7 +160,7 @@ Defined in `audit-framework.md`. Ledger values, verbatim:
 `trades/_ledger.csv`, one row per lot, header exactly:
 
 ```csv
-lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,grade_execution,cycle_id,linked_lot,link_type,credit_pct_width,return_on_risk,findings,tags,outcome
+lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,horizon,grade_execution,cycle_id,linked_lot,link_type,credit_pct_width,return_on_risk,findings,tags,outcome
 ```
 
 - `parent_lot_id` is empty on the parent row and carries the parent's lot ID on

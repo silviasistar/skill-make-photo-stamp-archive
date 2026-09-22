@@ -103,6 +103,50 @@ learns that past sizing sat outside what they now consider acceptable.
 - `warning` — possible issue, or evidence too thin to call.
 - `critical` — an explicit limit or written rule was breached.
 
+## Horizon — declared at entry, before anything else
+
+**A stop is a swing-trading instrument. Applying it to every lot is a category
+error**, and R is not a universal unit: a position held for years has no
+meaningful R, and grading it as though it does produces a number that describes
+nothing.
+
+Every lot declares a `horizon` at entry. What the lot owes the record, and how
+it is later measured, both follow from it:
+
+| Horizon | What it is | Requires instead of a stop | Unit |
+| --- | --- | --- | --- |
+| `swing` | days to months, on a price or setup thesis | **a price stop** — 1R = (entry − stop) × size | R multiple |
+| `income` | premium sold; expiry or assignment is the planned resolution | **an assignment plan** — the price at which delivery is accepted, or the level at which the position is closed instead | R on max loss |
+| `allocation` | held long term; exited on the thesis changing, not on price | **a written non-price invalidation** — what about the company or the case would have to change — and a review cadence | return on capital, and holding period |
+
+`stop_missing` fires on a `swing` lot only. On an `allocation` lot the absence of
+a stop is correct and is not a finding; what is a finding there is
+`invalidation_missing`, because "long term" with nothing written about what would
+end the position is not a horizon, it is the absence of a plan wearing one.
+
+**R never crosses horizons.** An `allocation` lot has no R. Review segments by
+horizon and never blends them: averaging a multi-year position's return into a
+set of swing R multiples produces a number with no referent. Report each horizon
+on its own terms and say so.
+
+### The failure this opens, and its guard
+
+Declaring the horizon at entry is not a formality. The obvious abuse is to open a
+`swing` lot, watch it go against you, and reclassify it as `allocation` so that
+the missing stop stops being a finding and the loss stops being a loss. This is
+one of the most common ways a trading record stops being true.
+
+- **`horizon_drift`** — a lot's horizon changed after the position moved against
+  the trader. Evidence: an `AMEND` block changing `horizon`, compared against the
+  lot's mark at that date. Reflection: had it been up the same amount, would the
+  horizon have changed?
+
+A horizon may legitimately change — a swing entry can become a long-term holding
+on new information. It changes through a dated `AMEND` stating what changed,
+never silently, and the audit reads the direction of the position at that moment
+alongside it. Both readings are recorded; the tag notes when it happened, not
+what was intended.
+
 ## The recording gap
 
 `live`, `delayed` and `reconstructed` describe **when the record was made**, not

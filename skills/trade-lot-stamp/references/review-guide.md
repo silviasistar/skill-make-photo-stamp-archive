@@ -13,6 +13,19 @@ Read `trades/_ledger.csv` first for the numbers. Open individual lot files only
 for the ones the numbers single out — the worst R, the best R, every `D`/`F`
 process grade, and every `discretionary` exit.
 
+## Segment by horizon first
+
+Before any metric: split the lots by `horizon` and report the groups separately.
+**R does not cross horizons and `allocation` lots have no R**, so expectancy,
+average R, profit factor and max drawdown in R are computed over `swing` and
+`income` lots only. `allocation` lots are reported on return on capital and
+holding period, against whatever benchmark the trader names, and are never
+averaged into an R figure.
+
+Also count `horizon_drift`: lots whose horizon changed after the position moved
+against the trader. One is an anecdote; a pattern of them means the record's
+categories are being set by outcomes.
+
 ## Metrics
 
 Compute from closed lots in scope. State the sample size before the numbers, and
