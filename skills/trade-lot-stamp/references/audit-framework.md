@@ -103,6 +103,32 @@ learns that past sizing sat outside what they now consider acceptable.
 - `warning` — possible issue, or evidence too thin to call.
 - `critical` — an explicit limit or written rule was breached.
 
+## Corrections to recorded facts
+
+Append-only protects the history of *decisions*. A wrong number is not a decision
+and must not be left to mislead: a reader scanning the Position table sees the
+error, not the correction appended eighty lines below.
+
+For a data-entry error — a misheard fill, a transposed strike, a wrong timestamp —
+append a dated `CORRECTION` block giving the wrong value, the right value, and
+what it changes, **and** annotate the original field in place with a pointer,
+leaving the wrong value visible:
+
+```markdown
+| Entry | $5.00 debit ⚠️ see CORRECTION 2026-09-22 | 
+```
+
+The original value stays; nothing is deleted or overwritten. This is the only
+sanctioned in-place edit, and it applies to facts alone — never to a thesis, a
+reason, a grade, or anything that records what was decided or believed at the
+time.
+
+Then re-grade. A corrected fact usually moves more than its own lot: any audit or
+review that cited it has to be revisited, and a cross-lot narrative built partly
+on the wrong number may not survive at all. Say so plainly when it does not. **A
+review that quietly keeps its conclusion after losing the evidence for it is worse
+than one that never ran.**
+
 ## Linked lots
 
 An option exercised or assigned against stock you hold does not pay out in its
