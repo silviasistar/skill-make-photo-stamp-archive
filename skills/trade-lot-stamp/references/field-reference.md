@@ -138,7 +138,7 @@ Defined in `audit-framework.md`. Ledger values, verbatim:
 `trades/_ledger.csv`, one row per lot, header exactly:
 
 ```csv
-lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,grade_execution,linked_lot,link_type,credit_pct_width,return_on_risk,findings,tags,outcome
+lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,entry_ts,entry_price,underlying_in,qty,cost,risk_r,pct_book,heat_r,setup_confirmed,regime_gate,dte_in,iv_in,ivr_in,delta_in,target1,stop,exit_ts,exit_price,underlying_out,exit_reason,pnl,pnl_pct,r_multiple,realized_risk_r,hold_days,verdict,root_cause,grade_record,grade_thesis,grade_process,grade_risk,grade_execution,cycle_id,linked_lot,link_type,credit_pct_width,return_on_risk,findings,tags,outcome
 ```
 
 - `parent_lot_id` is empty on the parent row and carries the parent's lot ID on
@@ -152,6 +152,8 @@ lot_id,parent_lot_id,status,ticker,instrument,strategy,driver,catalyst,recorded,
   included; `regime_gate` is `allowed`, `restrictive`, or `cash-only`.
 - `realized_risk_r` is what the lot actually risked, which exceeds `risk_r` when
   a stop gapped through. `size_creep` compares these two, not `risk_r` alone.
+- `cycle_id` groups the lots of one wheel cycle (`<TICKER>-WHEEL-<n>`). Review
+  reports the cycle, not its legs — see `audit-framework.md`.
 - `linked_lot` names the other lot ID when an exercise or assignment moves value
   between two lots; `link_type` is `hedge_of`, `hedged_by`, `assigned_into`, or
   `incidental`. Review must read linked lots as a pair — the option's payoff sits

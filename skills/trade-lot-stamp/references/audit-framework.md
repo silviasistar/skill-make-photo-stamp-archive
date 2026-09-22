@@ -152,6 +152,37 @@ A lot that is linked only in hindsight is still recorded, with the linkage marke
 `incidental`: the protection was real, the intent is unproven. The distinction
 matters because an incidental hedge cannot be relied on to repeat.
 
+## Wheel cycles
+
+A wheel is a chain of lots — sell put, take assignment, sell covered call, get
+called away, repeat — and **per-lot P&L systematically misreads it.** Every
+option leg books a premium and looks like a win; the stock legs carry the result.
+A wheel can show four profitable option lots and still be underwater on shares
+nobody looked at.
+
+Give the chain a `cycle_id` (`<TICKER>-WHEEL-<n>`) and put it on every lot in it.
+Then report the cycle, not the legs:
+
+- **Cycle P&L** = all premiums collected − premiums paid to close + realized
+  stock P&L, with unrealized stock marked and labelled as unrealized.
+- **Capital committed** = the assignment exposure the cycle ties up, which is
+  what the return is earned on.
+- **Cycle return** = cycle P&L ÷ capital committed, annualized over elapsed days
+  only when the cycle has closed.
+
+Two things a cycle-level view shows that legs hide:
+
+1. **Premium income masking share losses.** Collecting $500 a month while the
+   shares fall $3,000 is four winning lots and a losing cycle.
+2. **The branch the wheel does not name.** If the underlying runs away, puts
+   expire worthless forever and the shares are never re-acquired. Every leg
+   wins; the cycle never does what it was for. Record this outcome when it
+   happens — it is not a loss and the ledger will not flag it.
+
+A cycle started mid-stream (earlier legs not backfilled) is recorded as such on
+its first lot, with a note that comparisons to earlier cycles are unavailable.
+Never infer the missing legs.
+
 ## Finding topics
 
 A finding names one topic from this list, so findings stay countable across
