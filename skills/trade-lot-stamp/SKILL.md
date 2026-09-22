@@ -61,11 +61,16 @@ Determine the mode from the request before doing anything else.
    a **fill time** and a **record time**, both in ET for US markets. Convert the
    trader's local clock to ET first; a 23:19 reading is 11:19 ET from Beijing and
    23:19 ET from New York, and the tag differs.
-   The recording tag is set by the **gap between them**, never by the fill time
-   alone:
-   - `live` — recorded within about an hour of the fill, in the same session;
-   - `same-day` — same ET trading day, but beyond that window;
+   The recording tag is set by the **gap between them measured against the
+   position's remaining life**, never by the fill time alone and never by a fixed
+   number of hours:
+   - `live` — the gap is a negligible share of the position's life, and the
+     record predates anything being knowable about the outcome;
+   - `same-day` — same ET trading day, but a material share of the life has
+     passed, or the session has closed;
    - `reconstructed` — a later ET day, from memory or a broker statement.
+   An hour and a half is 0.3% of a 24-day position and 30% of a 0 DTE one. The
+   same clock gap is negligible on the first and disqualifying on the second.
    The tag describes when the *record* was made. A thesis typed after the close
    has seen the whole session and is not a real-time prediction, however
    carefully it is written.

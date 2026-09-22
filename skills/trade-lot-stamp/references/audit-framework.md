@@ -103,6 +103,31 @@ learns that past sizing sat outside what they now consider acceptable.
 - `warning` — possible issue, or evidence too thin to call.
 - `critical` — an explicit limit or written rule was breached.
 
+## The recording gap
+
+`live`, `same-day` and `reconstructed` describe **when the record was made**, not
+when the trade was. Setting the tag needs two timestamps, both converted to ET
+before anything is compared — the trader's local clock is not the market's, and
+the same 23:19 reading is 11:19 ET from Beijing and 23:19 ET from New York, which
+is the difference between mid-session and four hours after the close.
+
+Judge the gap **as a share of the position's remaining life**, not in absolute
+hours:
+
+| Position | Gap | Share of life | Reads as |
+| --- | --- | --- | --- |
+| 24 DTE | 1h 40m | 0.29% | negligible — `live` |
+| 0 DTE, 5h 38m left | 1h 40m | 30% | disqualifying |
+
+A flat hour threshold gets both of these wrong in opposite directions. What the
+tag is protecting is a simple question: **could the outcome have been known when
+this was written?** On a 24-day position an hour of intraday noise answers no; on
+an expiring contract it answers yes.
+
+Record both times on the stamp so the judgement can be re-checked, and re-check
+it whenever the timezone or either timestamp is corrected — the tag is derived,
+not asserted, and a correction to an input changes it.
+
 ## Corrections to recorded facts
 
 Append-only protects the history of *decisions*. A wrong number is not a decision
